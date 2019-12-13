@@ -9,4 +9,9 @@ export class NewsController {
     async getAll(@Req() req, @Query() params: NewsDto){
         return this.newsService.getAll(params);
     }
+
+    @Get('/headlines')
+    async getHeadlines(){
+        return this.newsService.getHeadlines();
+    }
 }

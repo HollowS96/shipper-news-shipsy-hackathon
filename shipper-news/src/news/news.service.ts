@@ -6,6 +6,7 @@ import { Helper } from "../common/helper";
 import { NewsDto } from "./news.dto";
 const moment = require('moment');
 const Parser = require('rss-parser');
+const newsAPI = require('newsapi');
 const lodash = require('lodash');
 @Injectable()
 export class NewsService {
@@ -53,5 +54,38 @@ export class NewsService {
         const selectQuery = 'SELECT *,ROW_NUMBER() OVER(ORDER BY published_time DESC) AS rank FROM news WHERE rank >= $1 and rank <= $2 ';
         const response = await (global as any).pool.query(selectQuery,[startValue,endValue]);
         return Helper.convertToCamelCaseObject(response);
+    }
+
+    async getHeadlines() {
+        const searchEnum = ['export import','export','import'];
+        const result: any [] = [];
+        const news = new newsAPI('7e38f5e3d9694f35a3ce9a5444c247e6');
+        const params:any = {
+            language: 'en',
+           // country: 'in',
+            category: 'business',
+        };
+        // params.q = searchEnum.join(' ');
+        let headlines;
+        for (let i=0;i< searchEnum.length; i++) {
+            params.q = searchEnum[i];
+            headlines = await news.v2.topHeadlines(params);
+            if (headlines.totalResults > 0) {
+                headlines.articles.forEach(ele => {
+                    const news :any  = {
+                        title : ele.title,
+                        article_link : ele.url,
+                        description : ele.description,
+                        published_time : moment(ele.publishedAt).toDate(),
+                        source : ele.source.name,
+                        category : 'headlines',
+                        image_link: ele.urlToImage
+                    }
+                    console.log(news);
+                    result.push(news);
+                });
+                return result;
+            }
+        }
     }
 }
