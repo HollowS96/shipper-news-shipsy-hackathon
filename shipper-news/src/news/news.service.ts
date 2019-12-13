@@ -40,8 +40,8 @@ export class NewsService {
             let startValue = 1;
             let endValue = 10;
             if(category === 'all' && currentPageNumber){
-                startValue = (currentPageNumber - 1 || 0) * 50;
-                endValue = startValue + 50;
+                startValue = (currentPageNumber - 1 || 0) * 10;
+                endValue = startValue + 9;
             }
            const selectQuery = `
                 WITH news_result AS (
