@@ -35,7 +35,7 @@ export class NewsService {
         }
     }
 
-    async selectRows(category : string,currentPageNumber? : number){
+    async selectRows(category : string,currentPageNumber? : number,userId? : string){
         try{
             let startValue = 1;
             let endValue = 10;
@@ -46,10 +46,13 @@ export class NewsService {
            const selectQuery = `
                 WITH news_result AS (
                     SELECT *,
-                    ROW_NUMBER() OVER(ORDER BY published_time DESC) AS rank FROM news
+                    ROW_NUMBER() OVER(ORDER BY published_time DESC) AS rank
+                    ${userId ? `,(SELECT exists(SELECT 1 FROM likes WHERE user_id = '${userId}' AND article_id::text = news.id::text)) AS is_liked` :''} 
+                    FROM news
                     WHERE category = '${category}'
                 )
-                select * from news_result WHERE rank >= $1 and rank <= $2`;
+                select * from news_result WHERE rank >= $1 and rank <= $2
+                `;
             const response = await (global as any).pool.query(selectQuery,[startValue,endValue]);
             return Helper.convertToCamelCaseObject(response.rows);
         } catch(err){
@@ -84,7 +87,7 @@ export class NewsService {
             // Now store all the results in the db
             await this.insertIntoNews(allNews);
         }
-        return await this.selectRows('all',params.currentPageNumber)
+        return await this.selectRows('all',params.currentPageNumber,params.userId)
     }
 
     async getHeadlines() {
@@ -116,7 +119,7 @@ export class NewsService {
                 }
                 });
                 await this.insertIntoNews(allNews);
-                return await this.selectRows('headlines');
+                return await this.selectRows('headlines',params.userId);
             }
         }
     }
@@ -148,7 +151,7 @@ export class NewsService {
                }
             });
             await this.insertIntoNews(allNews);
-            return await this.selectRows('popular');
+            return await this.selectRows('popular',params.userId);
         }
     }
 }

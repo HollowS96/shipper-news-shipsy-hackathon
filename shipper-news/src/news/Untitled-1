@@ -3,4 +3,6 @@ ALTER TABLE news ADD CONSTRAINT title_source unique(title,source);
 
 
 
-CREATE TABLE comments (id SERIAL, article_id text,text text, user_id text, created_at timestamp with timezone)
+CREATE TABLE comments (id SERIAL, article_id text,text text, user_id text, created_at timestamp with timezone);
+
+CREATE TABLE likes (id SERIAL, article_id text, user_id text, created_at timestamp with time zone);

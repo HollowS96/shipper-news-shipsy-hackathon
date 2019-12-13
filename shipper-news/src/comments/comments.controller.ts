@@ -20,5 +20,5 @@ export class CommentController{
     @Post('/updateLikesAndShare')
     async updateLikesAndShare(@Req() req, @Body()params : LikeAndShareDto){
         return await this.commentService.updateLikesAndShare(params);
-    }
+    } 
 }

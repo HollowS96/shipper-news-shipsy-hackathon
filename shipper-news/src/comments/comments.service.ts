@@ -53,6 +53,10 @@ export class CommentService{
         const queryString = `UPDATE news SET ${typeToColumnMap[params.type]} = ${typeToColumnMap[params.type]} + 1 WHERE id = $1`;
         try{
             const response = (global as any).pool.query(queryString,[params.articleId]);
+            if(params.type === 'like' && params.userId){
+                const typeQueryString = 'INSERT INTO likes(article_id, user_id, created_at) values($1,$2,now())';
+                const typeQueryResponse = await (global as any).pool.query(typeQueryString,[params.articleId,params.userId]);
+            }
             return {
                 status : 'ok',
             }
