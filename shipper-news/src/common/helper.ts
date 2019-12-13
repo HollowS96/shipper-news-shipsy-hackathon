@@ -81,5 +81,13 @@ export class Helper{
 			return 'Date';
 		}
 		return 'Other';
+    }
+    static getInStr(length: number, startingPos: number = 1) {
+		const paramInStrArr: any = [];
+		for (let i = 0; i < length; i = i + 1) {
+			paramInStrArr.push(`$${i + startingPos}`);
+		}
+		const paramsInStr = `(${paramInStrArr.join(',')})`;
+		return paramsInStr;
 	}
 }

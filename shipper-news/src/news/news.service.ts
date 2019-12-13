@@ -14,6 +14,50 @@ export class NewsService {
     constructor(readonly configService : ConfigService){
         this.parser = new Parser();
     }
+
+    async insertIntoNews(allNews : any[]){
+        const values :string [] = [];
+        let currentParameter = 1;
+        let insertQuery = `INSERT INTO news(title,article_link,description,published_time,source,category,image_link) VALUES`;
+        const paramsString : string[] = [];
+        allNews.forEach((news)=>{
+            values.push(news.title,news.article_link,news.description,news.published_time,news.source,news.category,news.image_link);
+            paramsString.push(`${Helper.getInStr(7,currentParameter)}`);
+            currentParameter += 7;
+        })
+        insertQuery = insertQuery + paramsString.join(',') + ' ON CONFLICT DO NOTHING RETURNING *';
+        try{
+            const insertedResult = await (global as any).pool.query(insertQuery,values);
+            console.log('inserted',insertedResult.rows.length);
+        }
+        catch(err){
+            console.log(err);
+        }
+    }
+
+    async selectRows(category : string,currentPageNumber? : number){
+        try{
+            let startValue = 1;
+            let endValue = 10;
+            if(category === 'all' && currentPageNumber){
+                startValue = (currentPageNumber - 1 || 0) * 10;
+                endValue = startValue + 9;
+            }
+           const selectQuery = `
+                WITH news_result AS (
+                    SELECT *,
+                    ROW_NUMBER() OVER(ORDER BY published_time DESC) AS rank FROM news
+                    WHERE category = '${category}'
+                )
+                select * from news_result WHERE rank >= $1 and rank <= $2`;
+            const response = await (global as any).pool.query(selectQuery,[startValue,endValue]);
+            return Helper.convertToCamelCaseObject(response.rows);
+        } catch(err){
+            console.log(err);
+            throw err;
+        }
+    }
+
     async getAll(params : NewsDto){
         // Get all the results and do all the processing
         const marineLinkEndpoint = this.configService.getMarineLinkEndpoint();
@@ -21,7 +65,7 @@ export class NewsService {
         const xmlResponse = await this.parser.parseURL(rssURL);
         const newsItems = xmlResponse.items;
         if(newsItems && newsItems instanceof Array && newsItems.length > 0){
-            const values :string [] = [];
+            const allNews : any = [];
             newsItems.forEach((ele)=>{
                 const news :any  = {
                     title : ele.title,
@@ -35,30 +79,17 @@ export class NewsService {
                 if(ele.enclosure && ele.enclosure.type ==='image/jpeg'){
                     news.image_link = ele.enclosure.url;
                 }
-                values.push(`('${news.title}','${news.article_link}','${news.description}','${news.published_time}','${news.source}','${news.category}','${news.image_link}')`)
+                allNews.push(news);
             });
             // Now store all the results in the db
-            let insertQuery = `INSERT INTO news(title,article_link,description,published_time,source,category,image_link) VALUES`;
-            insertQuery = insertQuery + values.join(',') + ' ON CONFLICT DO NOTHING';
-            try{
-                const insertedResult = await (global as any).pool.query(insertQuery);
-                console.log('inserted',insertedResult.length);
-            }
-            catch(err){
-                console.log(err);
-            }
-            
+            await this.insertIntoNews(allNews);
         }
-        const startValue = (params.currentPageNumber && params.currentPageNumber - 1 || 0) * 50;
-        const endValue = startValue + 50;
-        const selectQuery = 'SELECT *,ROW_NUMBER() OVER(ORDER BY published_time DESC) AS rank FROM news WHERE rank >= $1 and rank <= $2 ';
-        const response = await (global as any).pool.query(selectQuery,[startValue,endValue]);
-        return Helper.convertToCamelCaseObject(response);
+        return await this.selectRows('all',params.currentPageNumber)
     }
 
     async getHeadlines() {
         const searchEnum = ['export import','export','import'];
-        const result: any [] = [];
+        const allNews: any [] = [];
         const news = new newsAPI(this.configService.getNewsAPIKey());
         const params:any = {
             language: 'en',
@@ -81,18 +112,18 @@ export class NewsService {
                         category : 'headlines',
                         image_link: ele.urlToImage
                     }
-                    console.log(news);
-                    result.push(news);
-                   }
+                    allNews.push(news);
+                }
                 });
-                return result;
+                await this.insertIntoNews(allNews);
+                return await this.selectRows('headlines');
             }
         }
     }
 
     async getPopular(){
         const news = new newsAPI(this.configService.getNewsAPIKey());
-        let result: any[] = [];
+        let allNews: any[] = [];
         const params:any = {
             language: 'en',
            // country: 'in',
@@ -109,14 +140,15 @@ export class NewsService {
                     description : ele.description,
                     published_time : moment(ele.publishedAt).toDate(),
                     source : ele.source.name,
-                    category : 'headlines',
+                    category : 'popular',
                     image_link: ele.urlToImage
                 }
                 console.log(news);
-                result.push(news);
+                allNews.push(news);
                }
             });
-            return result;
+            await this.insertIntoNews(allNews);
+            return await this.selectRows('popular');
         }
     }
 }
