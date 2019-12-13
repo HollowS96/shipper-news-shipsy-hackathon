@@ -1,9 +1,10 @@
 import { Injectable } from "@nestjs/common";
-import * as rp from 'request-promise';
+// import * as rp from 'request-promise';
 import { Constants } from "../common/constants";
 import { ConfigService } from "../config/config.service";
 const moment = require('moment');
 const Parser = require('rss-parser');
+const newsAPI = require('newsapi');
 @Injectable()
 export class NewsService {
     parser : any;
@@ -29,5 +30,30 @@ export class NewsService {
             });
         }
         return result;
+    }
+
+    async getHeadlines() {
+        const searchEnum = ['export','import'];
+        const news = new newsAPI('7e38f5e3d9694f35a3ce9a5444c247e6');
+        const params:any = {
+            language: 'en',
+           // country: 'in',
+            category: 'business',
+            q: 'export import',
+        };
+        // params.q = searchEnum.join(' ');
+
+        let headlines = await news.v2.topHeadlines(params);
+        if (headlines.totalResults > 0) {
+            return headlines;
+        }
+        params.q = 'export';
+         headlines = await news.v2.topHeadlines(params);
+        if (headlines.totalResults > 0) {
+            return headlines;
+        }
+        params.q = 'import';
+        headlines = await news.v2.topHeadlines(params);
+        return headlines;
     }
 }
