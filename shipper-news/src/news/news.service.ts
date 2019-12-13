@@ -72,6 +72,7 @@ export class NewsService {
             headlines = await news.v2.topHeadlines(params);
             if (headlines.totalResults > 0) {
                 headlines.articles.forEach(ele => {
+                   if (ele.urlToImage) {
                     const news :any  = {
                         title : ele.title,
                         article_link : ele.url,
@@ -83,6 +84,7 @@ export class NewsService {
                     }
                     console.log(news);
                     result.push(news);
+                   }
                 });
                 return result;
             }
