@@ -1,8 +1,19 @@
 import { NestFactory, APP_PIPE } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Transport } from '@nestjs/common/enums/transport.enum';
+const config = require('../config.json');
+const Pool = require('pg').Pool;
 (global as any).startTime = new Date();
 
+function setUpPostgres(){
+  const pool = new Pool({
+    user: 'hackathon',
+    host : '35.244.28.142',
+    database : 'hackathon',
+    password :  'shipsy@123',
+    port : 5432,
+  });
+  (global as any).pool = pool;
+}
 
 function setCors(app){
   app.enableCors({
