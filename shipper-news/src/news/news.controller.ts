@@ -1,10 +1,11 @@
 import { Controller, Get } from "@nestjs/common";
-import { async } from "rxjs/internal/scheduler/async";
+import { NewsService } from "./news.service";
 
 @Controller('/news')
 export class NewsController {
-    @Get('links')
-    async fetch() {
-        
+    constructor(readonly newsService : NewsService){}
+    @Get('/getAll')
+    async getAll(){
+        return this.newsService.getAll();
     }
 }

@@ -23,8 +23,12 @@
     "@nestjs/common": "^6.7.2",
     "@nestjs/core": "^6.7.2",
     "@nestjs/platform-express": "^6.7.2",
+    "cors": "^2.8.5",
+    "moment": "^2.24.0",
     "reflect-metadata": "^0.1.13",
+    "request-promise": "^4.2.5",
     "rimraf": "^3.0.0",
+    "rss-parser": "^3.7.3",
     "rxjs": "^6.5.3"
   },
   "devDependencies": {
@@ -51,7 +55,6 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
     "testRegex": ".spec.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
