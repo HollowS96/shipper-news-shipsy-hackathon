@@ -1,4 +1,4 @@
-import * as camelCase from "camelCase";
+import * as camelCase from "camelcase";
 
 export class Helper{
     static stringConstructor = ''.constructor;
