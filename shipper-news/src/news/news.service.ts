@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-// import * as rp from 'request-promise';
+import * as rp from 'request-promise';
 import { Constants } from "../common/constants";
 import { ConfigService } from "../config/config.service";
 import { Helper } from "../common/helper";
@@ -41,27 +41,35 @@ export class NewsService {
     }
 
     async getHeadlines() {
-        const searchEnum = ['export','import'];
+        const searchEnum = ['export import','export','import'];
+        const result: any [] = [];
         const news = new newsAPI('7e38f5e3d9694f35a3ce9a5444c247e6');
         const params:any = {
             language: 'en',
            // country: 'in',
             category: 'business',
-            q: 'export import',
         };
         // params.q = searchEnum.join(' ');
-
-        let headlines = await news.v2.topHeadlines(params);
-        if (headlines.totalResults > 0) {
-            return headlines;
+        let headlines;
+        for (let i=0;i< searchEnum.length; i++) {
+            params.q = searchEnum[i];
+            headlines = await news.v2.topHeadlines(params);
+            if (headlines.totalResults > 0) {
+                headlines.articles.forEach(ele => {
+                    const news :any  = {
+                        title : ele.title,
+                        article_link : ele.url,
+                        description : ele.description,
+                        published_time : moment(ele.publishedAt).toDate(),
+                        source : ele.source.name,
+                        category : 'headlines',
+                        image_link: ele.urlToImage
+                    }
+                    console.log(news);
+                    result.push(news);
+                });
+                return result;
+            }
         }
-        params.q = 'export';
-         headlines = await news.v2.topHeadlines(params);
-        if (headlines.totalResults > 0) {
-            return headlines;
-        }
-        params.q = 'import';
-        headlines = await news.v2.topHeadlines(params);
-        return headlines;
     }
 }
