@@ -6,10 +6,10 @@ const Pool = require('pg').Pool;
 
 function setUpPostgres(){
   const pool = new Pool({
-    user: 'hackathon',
-    host : '35.244.28.142',
-    database : 'hackathon',
-    password :  'shipsy@123',
+    user: 'shipsy',
+    host : 'shipsy3.c6j0kg8qztrp.us-west-2.rds.amazonaws.com',
+    database : 'eximpulse',
+    password :  '!shipsy432',
     port : 5432,
   });
   (global as any).pool = pool;
