@@ -5,4 +5,8 @@ export class ConfigService {
     getMarineLinkEndpoint(){
         return config['marineLinkEndpoint'];
     }
+
+    getNewsAPIKey(){
+        return config['newsAPIKey'];
+    }
 }

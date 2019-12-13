@@ -1,3 +1,4 @@
 {
-    "marineLinkEndpoint" : "https://www.marinelink.com/news/rss"
+    "marineLinkEndpoint" : "https://www.marinelink.com/news/rss",
+    "newsAPIKey":"7e38f5e3d9694f35a3ce9a5444c247e6"
 }

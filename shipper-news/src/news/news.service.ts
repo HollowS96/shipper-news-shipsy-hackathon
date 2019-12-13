@@ -59,13 +59,12 @@ export class NewsService {
     async getHeadlines() {
         const searchEnum = ['export import','export','import'];
         const result: any [] = [];
-        const news = new newsAPI('7e38f5e3d9694f35a3ce9a5444c247e6');
+        const news = new newsAPI(this.configService.getNewsAPIKey());
         const params:any = {
             language: 'en',
            // country: 'in',
             category: 'business',
         };
-        // params.q = searchEnum.join(' ');
         let headlines;
         for (let i=0;i< searchEnum.length; i++) {
             params.q = searchEnum[i];
@@ -88,6 +87,36 @@ export class NewsService {
                 });
                 return result;
             }
+        }
+    }
+
+    async getPopular(){
+        const news = new newsAPI(this.configService.getNewsAPIKey());
+        let result: any[] = [];
+        const params:any = {
+            language: 'en',
+           // country: 'in',
+            q: 'logistic industry',
+            sortBy: 'popularity',
+        };
+        const popularNews = await news.v2.everything(params);
+        if (popularNews.totalResults > 0) {
+            popularNews.articles.forEach(ele => {
+               if (ele.urlToImage) {
+                const news :any  = {
+                    title : ele.title,
+                    article_link : ele.url,
+                    description : ele.description,
+                    published_time : moment(ele.publishedAt).toDate(),
+                    source : ele.source.name,
+                    category : 'headlines',
+                    image_link: ele.urlToImage
+                }
+                console.log(news);
+                result.push(news);
+               }
+            });
+            return result;
         }
     }
 }

@@ -14,4 +14,9 @@ export class NewsController {
     async getHeadlines(){
         return this.newsService.getHeadlines();
     }
+
+    @Get('/popular')
+    async getPopular(){
+        return this.newsService.getPopular();
+    }
 }
