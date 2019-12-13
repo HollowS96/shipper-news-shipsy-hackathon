@@ -103,6 +103,7 @@ export class NewsService {
             headlines = await news.v2.topHeadlines(params);
             if (headlines.totalResults > 0) {
                 headlines.articles.forEach(ele => {
+                   if (ele.urlToImage) {
                     const news :any  = {
                         title : ele.title,
                         article_link : ele.url,
@@ -112,8 +113,8 @@ export class NewsService {
                         category : 'headlines',
                         image_link: ele.urlToImage
                     }
-                    
                     allNews.push(news);
+                }
                 });
                 await this.insertIntoNews(allNews);
                 return await this.selectRows('headlines');
