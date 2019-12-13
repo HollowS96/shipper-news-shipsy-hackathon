@@ -1,2 +1,2 @@
-CREATE TABLE news(id SERIAL, title TEXT,source text,  article_link TEXT,category Text, description TEXT,published_time timestamp with time zone,total_likes integer, total_comments integer, total_facebook_shares integer , total_instagram_shares integer, total_twitter_shares integer);
+CREATE TABLE news(id SERIAL, title TEXT,source text,  article_link TEXT,category Text, description TEXT,published_time timestamp with time zone,total_likes integer default 0, total_comments integer default 0, total_facebook_shares integer default 0, total_instagram_shares integer default 0, total_twitter_shares integer default 0);
 ALTER TABLE news ADD CONSTRAINT title_source unique(title,source);

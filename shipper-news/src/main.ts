@@ -35,9 +35,13 @@ function setCors(app){
 		exposedHeaders: ['Content-Disposition'],
 	});
 }
+function setup(app){
+  setCors(app);
+  setUpPostgres();
+}
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  setCors(app);
+  setup(app);
   await app.listen(8000,()=>{
     console.log('Server started');
   });
