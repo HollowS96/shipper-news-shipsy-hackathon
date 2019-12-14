@@ -14,7 +14,7 @@ export class CommentService{
         const allCommentsQuery = `SELECT * FROM comments WHERE article_id = $1`;
         try{
             const response = await (global as any).pool.query(allCommentsQuery,[params.articleId]);
-            return Helper.convertToCamelCaseObject(response);
+            return Helper.convertToCamelCaseObject(response.rows);
         }catch(err){
             console.log(err);
             throw err;
