@@ -11,7 +11,7 @@ export class CommentService{
         if(!params.articleId){
             throw new Error('Article Id is required');
         }
-        const allCommentsQuery = `SELECT * FROM comments WHERE article_id = $1`;
+        const allCommentsQuery = `SELECT * FROM comments WHERE article_id = $1 order by created_at desc`;
         try{
             const response = await (global as any).pool.query(allCommentsQuery,[params.articleId]);
             return Helper.convertToCamelCaseObject(response.rows);
